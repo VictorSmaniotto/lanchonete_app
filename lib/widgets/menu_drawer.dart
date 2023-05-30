@@ -1,3 +1,4 @@
+import 'package:app_lanchonete/pages/lanchonete_page.dart';
 import 'package:flutter/material.dart';
 
 class MenuDrawer extends StatelessWidget {
@@ -24,7 +25,14 @@ class MenuDrawer extends StatelessWidget {
                 ListTile(
                   leading: const Icon(Icons.fastfood_outlined),
                   title: const Text('Lanchonete'),
-                  onTap: () {},
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const LanchonetePage(),
+                      ),
+                    );
+                  },
                 ),
                 ListTile(
                   leading: const Icon(Icons.pin_drop),
