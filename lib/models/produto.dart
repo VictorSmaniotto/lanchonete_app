@@ -9,4 +9,12 @@ class Produto {
       required this.nome,
       required this.descricao,
       required this.valor});
+
+  factory Produto.fromJson(Map<String, dynamic> json) {
+    return Produto(
+        foto: json['foto'],
+        nome: json['nome'],
+        descricao: json['descricao'],
+        valor: json['valor']);
+  }
 }

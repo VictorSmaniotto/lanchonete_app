@@ -1,11 +1,46 @@
+import 'dart:convert';
+
+import 'package:app_lanchonete/helpers/api_url.dart';
 import 'package:app_lanchonete/pages/produto_page.dart';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 
+import '../models/categoria.dart';
 import '../models/produto.dart';
 import '../widgets/box_icon_categoria.dart';
 
-class HomePage extends StatelessWidget {
-  HomePage({super.key});
+class HomePage extends StatefulWidget {
+  const HomePage({super.key});
+
+  @override
+  State<HomePage> createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> {
+  late Future<List<Categoria>> _listaCategorias;
+
+  @override
+  void initState() {
+    super.initState();
+
+    _listaCategorias = carregarCategorias();
+  }
+
+  Future<List<Categoria>> carregarCategorias() async {
+    final response = await http.get(Uri.parse("${ApiUrl.baseUrl}/categorias"));
+
+    if (response.statusCode == 200) {
+      List listaCategorias = json.decode(response.body);
+
+      List<Categoria> categorias = listaCategorias
+          .map((categoria) => Categoria.fromJson(categoria))
+          .toList();
+
+      return categorias;
+    } else {
+      throw Exception('Falha ao carregar as categorias');
+    }
+  }
 
   final List<Produto> produtos = [
     Produto(
@@ -84,63 +119,31 @@ class HomePage extends StatelessWidget {
             ),
             SizedBox(
               height: 80,
-              child: ListView(
-                scrollDirection: Axis.horizontal,
-                //esta documentação vc pode ver em flutter view widght
-                //o scroll funciona p deixar de forma vertical vc desativa, agora se quiser de forma horizontal vc ativa
-                // shrinkWrap: true,
-                // physics: const NeverScrollableScrollPhysics(),
+              child: FutureBuilder<List<Categoria>>(
+                future: _listaCategorias,
+                builder: (context, snapshotCategorias) {
+                  if (snapshotCategorias.hasData) {
+                    final categorias = snapshotCategorias.data;
+                    return ListView.builder(
+                      itemCount: categorias?.length,
+                      scrollDirection: Axis.horizontal,
+                      itemBuilder: (context, index) {
+                        final categoria = categorias![index];
+                        return BoxIconCategoria(
+                          asset: categoria.icone,
+                          color: Color(int.parse(categoria.cor)),
+                          label: categoria.titulo,
+                        );
+                      },
+                    );
+                  } else if (snapshotCategorias.hasError) {
+                    debugPrint("${snapshotCategorias.error}");
+                  }
 
-                children: const [
-                  BoxIconCategoria(
-                    asset: 'assets/hambuger.svg',
-                    color: Colors.green,
-                    label: "Lanche",
-                  ),
-                  SizedBox(
-                    width: 5,
-                  ),
-                  BoxIconCategoria(
-                    asset: 'assets/porcao.svg',
-                    color: Colors.purple,
-                    label: "Porção",
-                  ),
-                  SizedBox(
-                    width: 5,
-                  ),
-                  BoxIconCategoria(
-                    asset: 'assets/bebida.svg',
-                    color: Colors.orange,
-                    label: "Bebida",
-                  ),
-                  SizedBox(
-                    width: 5,
-                  ),
-                  BoxIconCategoria(
-                    asset: 'assets/suco.svg',
-                    color: Colors.blue,
-                    label: "Suco",
-                  ),
-                  SizedBox(
-                    width: 5,
-                  ),
-                  BoxIconCategoria(
-                    asset: 'assets/pizza.svg',
-                    color: Colors.brown,
-                    label: "Pizza",
-                  ),
-                  SizedBox(
-                    width: 5,
-                  ),
-                  BoxIconCategoria(
-                    asset: 'assets/pizza.svg',
-                    color: Colors.brown,
-                    label: "Pizza",
-                  ),
-                  SizedBox(
-                    width: 5,
-                  ),
-                ],
+                  return const Center(
+                    child: CircularProgressIndicator.adaptive(),
+                  );
+                },
               ),
             ),
             const SizedBox(
