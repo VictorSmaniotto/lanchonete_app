@@ -7,18 +7,23 @@ class Produto {
   final int categoriaId;
   final String categoriaNome;
 
-  Produto({
-    required this.foto,
-    required this.titulo,
-    required this.descricao,
-    required this.valor,
-  });
+  Produto(
+      {required this.id,
+      required this.foto,
+      required this.titulo,
+      required this.descricao,
+      required this.valor,
+      required this.categoriaId,
+      required this.categoriaNome});
 
   factory Produto.fromJson(Map<String, dynamic> json) {
     return Produto(
+        id: json['id'],
         foto: json['foto'],
         titulo: json['titulo'],
         descricao: json['descricao'],
-        valor: json['valor']);
+        valor: json['valor'],
+        categoriaId: json['categoria_id'],
+        categoriaNome: json['categoria_nome']);
   }
 }
