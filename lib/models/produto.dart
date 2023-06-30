@@ -22,7 +22,7 @@ class Produto {
         foto: json['foto'],
         titulo: json['titulo'],
         descricao: json['descricao'],
-        valor: json['valor'],
+        valor: double.tryParse(json['valor']) ?? 0.0,
         categoriaId: json['categoria_id'],
         categoriaNome: json['categoria_nome']);
   }

@@ -22,7 +22,9 @@ class ProdutoPage extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           SizedBox(
-            child: Image.network(produto.foto),
+            width: 500,
+            child: Image.network(produto.foto,
+                fit: BoxFit.fill, alignment: Alignment.center),
           ),
           const SizedBox(
             height: 10,
@@ -30,7 +32,7 @@ class ProdutoPage extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.only(left: 15, top: 15),
             child: Text(
-              produto.nome,
+              produto.titulo,
               style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
             ),
           ),
