@@ -1,5 +1,8 @@
 import 'package:app_lanchonete/pages/lanchonete_page.dart';
+import 'package:app_lanchonete/pages/localizacao_page.dart';
 import 'package:flutter/material.dart';
+
+import '../helpers/auth.dart';
 
 class MenuDrawer extends StatelessWidget {
   const MenuDrawer({super.key});
@@ -37,7 +40,14 @@ class MenuDrawer extends StatelessWidget {
                 ListTile(
                   leading: const Icon(Icons.pin_drop),
                   title: const Text('Localização'),
-                  onTap: () {},
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const LocalizacaoPage(),
+                      ),
+                    );
+                  },
                 ),
                 ListTile(
                   leading: const Icon(Icons.contact_phone_outlined),
@@ -48,6 +58,13 @@ class MenuDrawer extends StatelessWidget {
                 ListTile(
                   title: const Text('Política de Privacidade'),
                   onTap: () {},
+                ),
+                const Divider(),
+                ListTile(
+                  title: const Text('Sair'),
+                  onTap: () {
+                    Auth.logout(context);
+                  },
                 ),
               ],
             ),

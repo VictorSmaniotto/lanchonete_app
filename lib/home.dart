@@ -1,3 +1,4 @@
+import 'package:app_lanchonete/helpers/auth.dart';
 import 'package:app_lanchonete/pages/cesta_page.dart';
 import 'package:app_lanchonete/pages/favoritos_page.dart';
 import 'package:app_lanchonete/pages/home_page.dart';
@@ -6,6 +7,7 @@ import 'package:app_lanchonete/pages/pedidos_page.dart';
 import 'package:app_lanchonete/widgets/menu_drawer.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class Home extends StatefulWidget {
   const Home({super.key});
@@ -17,8 +19,14 @@ class Home extends StatefulWidget {
 class _HomeState extends State<Home> {
   int _paginaIndex = 0;
 
+  @override
+  void initState() {
+    super.initState();
+    Auth.testeLogin(context);
+  }
+
   final List<Widget> paginas = [
-    HomePage(),
+    const HomePage(),
     const CestaPage(),
     const FavoritosPage(),
     const PedidosPage(),
@@ -40,7 +48,13 @@ class _HomeState extends State<Home> {
           Padding(
             padding: const EdgeInsets.only(right: 8),
             child: IconButton(
-                onPressed: () {},
+                onPressed: () async {
+                  var whatsappUrl = "https://google.com";
+
+                  if (!await launchUrl(Uri.parse(whatsappUrl))) {
+                    throw 'Could not launch $whatsappUrl';
+                  }
+                },
                 icon: SvgPicture.asset(
                   'assets/whatsapp48.svg',
                   height: 30,

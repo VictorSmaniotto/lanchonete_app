@@ -1,5 +1,12 @@
+import 'dart:convert';
+import 'dart:io';
+
 import 'package:app_lanchonete/pages/login_page.dart';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:http/http.dart' as http;
+
+import '../helpers/api_url.dart';
 
 class CadastrarPage extends StatefulWidget {
   const CadastrarPage({super.key});
@@ -15,9 +22,102 @@ class _CadastrarPageState extends State<CadastrarPage> {
   TextEditingController confirmaPasswordController = TextEditingController();
 
   final _formKey = GlobalKey<FormState>();
-  void cadastrarUser() {
+  XFile? _avatarImagem;
+
+  void _pickImage(ImageSource source) async {
+    final picker = ImagePicker();
+    final pickerImage = await picker.pickImage(source: source);
+
+    if (pickerImage != null) {
+      setState(() {
+        _avatarImagem = XFile(pickerImage.path);
+      });
+    }
+  }
+
+  void _showImagePicker() {
+    showModalBottomSheet(
+        context: context,
+        builder: (context) {
+          return SafeArea(
+              child: SizedBox(
+            height: 150,
+            child: Wrap(
+              children: [
+                ListTile(
+                  title: const Text('Câmera'),
+                  leading: const Icon(Icons.camera),
+                  onTap: () {
+                    Navigator.of(context).pop();
+                    _pickImage(ImageSource.camera);
+                  },
+                ),
+                ListTile(
+                  title: const Text('Galeria'),
+                  leading: const Icon(Icons.photo),
+                  onTap: () {
+                    Navigator.of(context).pop();
+                    _pickImage(ImageSource.gallery);
+                  },
+                ),
+              ],
+            ),
+          ));
+        });
+  }
+
+  void cadastrarUser() async {
     if (_formKey.currentState!.validate()) {
-      debugPrint('Enviado');
+      var request = http.MultipartRequest(
+          'POST', Uri.parse("${ApiUrl.baseUrl}/cadastrar"));
+      request.fields['nome'] = nomeController.text;
+      request.fields['email'] = emailController.text;
+      request.fields['password'] = passwordController.text;
+
+      if (_avatarImagem != null) {
+        request.files.add(
+            await http.MultipartFile.fromPath("imagem", _avatarImagem!.path));
+      }
+
+      var response = await request.send();
+      var streamedResponse = await http.Response.fromStream(response);
+      debugPrint(streamedResponse.body);
+
+      var jsonData = jsonDecode(streamedResponse.body);
+      // debugPrint(jsonData['errors'][0]);
+
+      if (streamedResponse.statusCode == 200) {
+        if (context.mounted) {
+          showDialog(
+              context: context,
+              builder: (context) {
+                return AlertDialog(
+                  title: const Text('Cadastro Realizado'),
+                  content: const Text('Usuário cadastrado com sucesso!'),
+                  actions: [
+                    TextButton(
+                      onPressed: () {
+                        Navigator.of(context).pop(); //fecha o alerta
+                        Navigator.of(context).pop(); // fecha o cadastrar
+                      },
+                      child: const Text('OK'),
+                    )
+                  ],
+                );
+              });
+        }
+      } else {
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text(
+                  "Ocorreu um erro durante o cadastro, por favor tente novamente mais tarde"),
+              // content: Text(jsonData['erros'][0]),
+              backgroundColor: Colors.redAccent,
+            ),
+          );
+        }
+      }
     }
   }
 
@@ -35,16 +135,30 @@ class _CadastrarPageState extends State<CadastrarPage> {
               padding: const EdgeInsets.all(15.0),
               child: Column(
                 children: [
-                  Container(
-                    width: 100,
-                    height: 100,
-                    decoration: const BoxDecoration(
-                        color: Colors.grey, shape: BoxShape.circle),
-                    child: const Icon(
-                      Icons.add_a_photo,
-                      color: Colors.white,
-                      size: 50,
-                    ),
+                  GestureDetector(
+                    onTap: _showImagePicker,
+                    child: (_avatarImagem == null)
+                        ? Container(
+                            width: 100,
+                            height: 100,
+                            decoration: const BoxDecoration(
+                                color: Colors.grey, shape: BoxShape.circle),
+                            child: const Icon(
+                              Icons.add_a_photo,
+                              color: Colors.white,
+                              size: 50,
+                            ),
+                          )
+                        : Container(
+                            height: 100,
+                            width: 100,
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              image: DecorationImage(
+                                  fit: BoxFit.cover,
+                                  image: FileImage(File(_avatarImagem!.path))),
+                            ),
+                          ),
                   ),
                   const SizedBox(
                     height: 20,

@@ -1,4 +1,4 @@
-import 'package:app_lanchonete/pages/login_page.dart';
+import 'package:app_lanchonete/home.dart';
 import 'package:flutter/material.dart';
 
 void main() {
@@ -7,7 +7,7 @@ void main() {
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
           primarySwatch: Colors.orange, scaffoldBackgroundColor: Colors.white),
-      home: const LoginPage(),
+      home: const Home(),
     ),
   );
 }
