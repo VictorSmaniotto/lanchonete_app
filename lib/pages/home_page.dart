@@ -28,6 +28,37 @@ class _HomePageState extends State<HomePage> {
     _listaProdutos = carregarProdutos();
   }
 
+  Future<void> filtrarProdutos(
+      {int? categoriaId, String? termoPesquisa}) async {
+    _listaProdutos = carregarProdutos();
+    if (categoriaId != null) {
+      setState(() {
+        _listaProdutos = _listaProdutos.then(
+          (produtos) => produtos
+              .where((produto) => produto.categoriaId == categoriaId)
+              .toList(),
+        );
+      });
+    }
+    if (termoPesquisa != null && termoPesquisa.isNotEmpty) {
+      setState(() {
+        _listaProdutos = _listaProdutos.then(
+          (produtos) => produtos
+              .where(
+                (produto) =>
+                    produto.titulo
+                        .toLowerCase()
+                        .contains(termoPesquisa.toLowerCase()) ||
+                    produto.descricao.toLowerCase().contains(
+                          termoPesquisa.toLowerCase(),
+                        ),
+              )
+              .toList(),
+        );
+      });
+    }
+  }
+
   Future<List<Categoria>> carregarCategorias() async {
     final response = await http.get(Uri.parse("${ApiUrl.baseUrl}/categorias"));
 
@@ -122,12 +153,10 @@ class _HomePageState extends State<HomePage> {
                   borderRadius: BorderRadius.circular(50),
                 ),
               ),
-              onChanged: (texto) {
-                debugPrint(texto);
-              },
               onSubmitted: (texto) {
                 debugPrint("Clicou em pesquisar");
                 debugPrint(texto);
+                filtrarProdutos(termoPesquisa: texto);
               },
             ),
             const SizedBox(
@@ -145,10 +174,15 @@ class _HomePageState extends State<HomePage> {
                       scrollDirection: Axis.horizontal,
                       itemBuilder: (context, index) {
                         final categoria = categorias![index];
-                        return BoxIconCategoria(
-                          asset: categoria.icone,
-                          color: Color(int.parse(categoria.cor)),
-                          label: categoria.titulo,
+                        return GestureDetector(
+                          onTap: () {
+                            filtrarProdutos(categoriaId: categoria.id);
+                          },
+                          child: BoxIconCategoria(
+                            asset: categoria.icone,
+                            color: Color(int.parse(categoria.cor)),
+                            label: categoria.titulo,
+                          ),
                         );
                       },
                     );
