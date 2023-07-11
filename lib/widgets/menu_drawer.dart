@@ -1,5 +1,6 @@
 import 'package:app_lanchonete/pages/lanchonete_page.dart';
 import 'package:app_lanchonete/pages/localizacao_page.dart';
+import 'package:app_lanchonete/pages/politica_page.dart';
 import 'package:flutter/material.dart';
 
 import '../helpers/auth.dart';
@@ -57,7 +58,14 @@ class MenuDrawer extends StatelessWidget {
                 const Divider(),
                 ListTile(
                   title: const Text('Política de Privacidade'),
-                  onTap: () {},
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const PoliticaPage(),
+                      ),
+                    );
+                  },
                 ),
                 const Divider(),
                 ListTile(
